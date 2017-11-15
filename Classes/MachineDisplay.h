@@ -2,6 +2,7 @@
 #define __MACHINE_DISPLAY_H__
 
 #include "cocos2d.h"
+#include <list>
 
 class MachineDisplay : public cocos2d::Sprite
 {
@@ -14,6 +15,9 @@ public:
 
 private:
     void initIcons();
+
+private:
+//    std::list<>
 
 };
 

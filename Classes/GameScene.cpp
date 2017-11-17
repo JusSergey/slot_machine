@@ -9,7 +9,10 @@ static const Vec2 POSITION_DISPLAY(0.5f, 0.56f);
 static const Vec2 POSITION_BACKGROUND(0.5f, 0.5f);
 static const Vec2 POSITION_BUTTON_SPIN(0.5f, 0.15f);
 
-enum ZOrder : int { MACHINE_DISPLAY, BACKGROUND, BUTTON_SPIN };
+static const GLubyte AUTOSPIN_OFF(0xff * 1.f);
+static const GLubyte AUTOSPIN_ON(0xff * 0.7f);
+
+enum ZOrder : int { MACHINE_DISPLAY, BACKGROUND, BUTTON_SPIN, CHOOSE_AUTOSPIN = BUTTON_SPIN };
 
 
 Scene* GameScene::createScene()
@@ -25,6 +28,9 @@ bool GameScene::init()
     initBackground();
     initMachineDisplay();
     initButtonSpin();
+    initChooseAutospin();
+
+    _machineDisplay->setCallbackDidSpinFinish(getCallbackDidSpinFinish());
 
     return true;
 }
@@ -55,11 +61,50 @@ void GameScene::initButtonSpin()
     addChild(_buttonSpin, ZOrder::BUTTON_SPIN);
 }
 
+void GameScene::initChooseAutospin()
+{
+    auto label = Label::createWithTTF("autospin", "fonts/arial.ttf", 36);
+
+    auto item = MenuItemLabel::create(label);
+    auto menu = Menu::createWithItem(item);
+
+    menu->setAnchorPoint(Vec2::ANCHOR_MIDDLE_LEFT);
+    menu->setPosition(getPoint(0.80, POSITION_BUTTON_SPIN.y));
+
+    addChild(menu, CHOOSE_AUTOSPIN);
+
+    scheduleOnce([=](float){
+        label->setOpacity(AUTOSPIN_ON);
+        _turnOnAutospin = (label->getOpacity() == AUTOSPIN_ON);
+    }, .001f, "setopa");
+
+    item->setCallback([=](Ref *ptr) {
+
+        auto label = (static_cast<Label *>(ptr));
+        _turnOnAutospin = label->getOpacity() == AUTOSPIN_ON;
+        label->setOpacity(_turnOnAutospin ? AUTOSPIN_OFF : AUTOSPIN_ON);
+
+        if (_turnOnAutospin)
+            _machineDisplay->spinIcons();
+    });
+}
+
 std::function<void (Ref *)> GameScene::getCallbackClickButtonSpin()
 {
     return [this] (Ref *) -> void {
         cocos2d::log("click event...");
         if (_machineDisplay)
             _machineDisplay->spinIcons();
+    };
+}
+
+std::function<void ()> GameScene::getCallbackDidSpinFinish()
+{
+    return [this] {
+        if (_turnOnAutospin) {
+            scheduleOnce([this](float){
+                _machineDisplay->spinIcons();
+            }, 1, "autostart");
+        }
     };
 }

@@ -8,6 +8,7 @@
 
 class GameScene : public cocos2d::Scene
 {
+    bool _turnOnAutospin = false;
 public:
     static cocos2d::Scene* createScene();
 
@@ -24,9 +25,11 @@ private:
     void initMachineDisplay();
     void initBackground();
     void initButtonSpin();
+    void initChooseAutospin();
 
 private:
     std::function<void(cocos2d::Ref*)> getCallbackClickButtonSpin();
+    std::function<void()> getCallbackDidSpinFinish();
 
 };
 

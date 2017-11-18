@@ -73,10 +73,8 @@ void GameScene::initChooseAutospin()
 
     addChild(menu, CHOOSE_AUTOSPIN);
 
-    scheduleOnce([=](float){
-        label->setOpacity(AUTOSPIN_ON);
-        _turnOnAutospin = (label->getOpacity() == AUTOSPIN_ON);
-    }, .001f, "setopa");
+    label->setOpacity(AUTOSPIN_ON);
+    _turnOnAutospin = (label->getOpacity() == AUTOSPIN_ON);
 
     item->setCallback([=](Ref *ptr) {
 
